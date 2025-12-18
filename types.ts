@@ -15,6 +15,13 @@ export interface Note {
   folderId: string;
 }
 
+export interface Todo {
+  id: string;
+  task: string;
+  completed: boolean;
+  createdAt: number;
+}
+
 export interface Email {
   id: string;
   from: string;
@@ -32,5 +39,5 @@ export interface CalendarEvent {
   location?: string;
 }
 
-export type AppTab = 'dashboard' | 'notes' | 'outlook' | 'ai';
+export type AppTab = 'dashboard' | 'notes' | 'todo' | 'outlook' | 'ai';
 export type Theme = 'light' | 'dark';

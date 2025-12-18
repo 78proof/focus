@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>OmniWork | Evolution</title>
+    <title>OmniWork | Nordic Midnight</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -15,81 +15,86 @@
         theme: {
           extend: {
             colors: {
-              zinc: {
-                950: '#000000',
-                900: '#080808',
-                800: '#101010'
-              }
+              midnight: '#0A0A0B',
+              nordic: '#161618',
+              slate: '#222226',
+              ghost: '#E1E1E6',
+              haze: '#A1A1AA'
             },
-            borderRadius: {
-              '4xl': '2rem',
-              '5xl': '2.5rem',
-              '6xl': '3.5rem',
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
             }
           }
         }
       }
     </script>
     <style>
-      :root {
-        --bg: #000000;
-        --fg: #ffffff;
-      }
-      
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;900&display=swap');
+
       html, body, #root {
         height: 100%;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background: var(--bg);
-        color: var(--fg);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #0A0A0B;
+        color: #E1E1E6;
+        font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
       }
 
-      /* Premium Minimalist Scroll */
+      /* Slow, Elegant Transitions */
+      * {
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        -webkit-tap-highlight-color: transparent;
+      }
+
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       
-      /* Pure Monochrome UI */
-      * {
-        -webkit-tap-highlight-color: transparent;
-        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
-                    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-                    background-color 0.6s ease;
-      }
-
-      .glass-pill {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      button:active {
-        transform: scale(0.96);
-        opacity: 0.8;
-      }
-
       .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
       .pt-safe { padding-top: env(safe-area-inset-top); }
 
-      /* Slow Motion Keyframes */
-      @keyframes slow-reveal {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-reveal { animation: slow-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-      h1, h2, h3 {
-        letter-spacing: -0.05em;
+      /* Nordic Glass Pill */
+      .nordic-card {
+        background: rgba(22, 22, 24, 0.6);
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 2.5rem;
       }
 
-      .mono-label {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        letter-spacing: 0.2em;
+      .btn-nordic {
+        background: #E1E1E6;
+        color: #0A0A0B;
+        border-radius: 9999px;
+        font-weight: 300;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        font-size: 9px;
-        font-weight: 800;
-        color: #444;
+      }
+
+      .btn-nordic:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+
+      input, textarea {
+        background: #161618 !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #E1E1E6 !important;
+        font-weight: 300 !important;
+      }
+
+      @keyframes reveal {
+        from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+        to { opacity: 1; transform: translateY(0); filter: blur(0); }
+      }
+      .animate-reveal { animation: reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+      .mono-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        color: #666;
+        text-transform: uppercase;
       }
     </style>
   <script type="importmap">
@@ -106,7 +111,7 @@
 }
 </script>
 </head>
-  <body class="bg-black text-white">
+  <body class="bg-midnight text-ghost">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

@@ -16,21 +16,21 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
   ];
 
   return (
-    <div className="fixed bottom-10 left-0 right-0 px-8 z-50 pointer-events-none">
-      <nav className="max-w-xs mx-auto glass-pill rounded-full h-16 px-2 flex items-center justify-around shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] pointer-events-auto">
+    <div className="fixed bottom-12 left-0 right-0 px-10 z-50 pointer-events-none">
+      <nav className="max-w-sm mx-auto bg-nordic/80 backdrop-blur-3xl border border-white/5 rounded-full h-20 px-2 flex items-center justify-around shadow-2xl pointer-events-auto ring-1 ring-white/5">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-700 relative ${
-              activeTab === tab.id ? 'text-white' : 'text-zinc-700'
+            className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-700 relative ${
+              activeTab === tab.id ? 'text-white' : 'text-zinc-600'
             }`}
           >
             {activeTab === tab.id && (
-              <span className="absolute inset-0 bg-white/10 rounded-full animate-in zoom-in-90 duration-500"></span>
+              <span className="absolute inset-2 bg-white/5 rounded-full border border-white/10 animate-in zoom-in-90 duration-700"></span>
             )}
-            <svg className="w-5 h-5 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === tab.id ? 2.5 : 1.5} d={tab.icon} />
+            <svg className="w-6 h-6 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === tab.id ? 1.5 : 1} d={tab.icon} />
             </svg>
           </button>
         ))}

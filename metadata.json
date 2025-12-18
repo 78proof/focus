@@ -1,0 +1,7 @@
+{
+  "name": "OmniWork",
+  "description": "A Granola-inspired all-in-one productivity hub combining voice/text notes, Outlook integration, and Gemini AI assistance.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

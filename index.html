@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>OmniWork | Nordic Midnight</title>
+    <title>OmniWork | High-Contrast Nordic</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -15,11 +15,17 @@
         theme: {
           extend: {
             colors: {
-              midnight: '#0A0A0B',
-              nordic: '#161618',
-              slate: '#222226',
-              ghost: '#E1E1E6',
-              haze: '#A1A1AA'
+              midnight: '#050506',
+              nordic: '#0D0D0E',
+              slate: '#161618',
+              ghost: '#FFFFFF',
+              haze: '#E5E7EB',
+              todoist: {
+                p1: '#de4c4a',
+                p2: '#f4a03e',
+                p3: '#4073d6',
+                p4: '#808080'
+              }
             },
             fontFamily: {
               sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -30,22 +36,21 @@
       }
     </script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;900&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
       html, body, #root {
         height: 100%;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background: #0A0A0B;
-        color: #E1E1E6;
+        background: #050506;
+        color: #FFFFFF;
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
       }
 
-      /* Slow, Elegant Transitions */
       * {
-        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         -webkit-tap-highlight-color: transparent;
       }
 
@@ -54,47 +59,42 @@
       .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
       .pt-safe { padding-top: env(safe-area-inset-top); }
 
-      /* Nordic Glass Pill */
       .nordic-card {
-        background: rgba(22, 22, 24, 0.6);
-        backdrop-filter: blur(40px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 2.5rem;
+        background: #0D0D0E;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 2rem;
       }
 
       .btn-nordic {
-        background: #E1E1E6;
-        color: #0A0A0B;
+        background: #FFFFFF;
+        color: #050506;
         border-radius: 9999px;
-        font-weight: 300;
-        letter-spacing: 0.1em;
+        font-weight: 900;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
       }
 
-      .btn-nordic:active {
-        transform: scale(0.95);
-        opacity: 0.8;
+      input, textarea {
+        background: #050506 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #FFFFFF !important;
       }
 
-      input, textarea {
-        background: #161618 !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #E1E1E6 !important;
-        font-weight: 300 !important;
-      }
+      input::placeholder { color: #374151 !important; }
 
       @keyframes reveal {
-        from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
-        to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
-      .animate-reveal { animation: reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-reveal { animation: reveal 0.5s ease-out forwards; }
 
       .mono-tag {
         font-family: 'JetBrains Mono', monospace;
         font-size: 10px;
-        letter-spacing: 0.3em;
-        color: #666;
+        letter-spacing: 0.2em;
+        color: #6B7280;
         text-transform: uppercase;
+        font-weight: 800;
       }
     </style>
   <script type="importmap">
@@ -111,7 +111,7 @@
 }
 </script>
 </head>
-  <body class="bg-midnight text-ghost">
+  <body class="bg-midnight text-white">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

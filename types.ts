@@ -20,6 +20,8 @@ export interface Todo {
   task: string;
   completed: boolean;
   createdAt: number;
+  priority?: 'p1' | 'p2' | 'p3' | 'p4';
+  dueDate?: string;
 }
 
 export interface Email {

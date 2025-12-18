@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
   const [googleClientId, setGoogleClientId] = useState(localStorage.getItem('GOOGLE_CLIENT_ID') || '');
+  const [outlookClientId, setOutlookClientId] = useState(localStorage.getItem('OUTLOOK_CLIENT_ID') || '');
   
   const [todos, setTodos] = useState<Todo[]>(() => JSON.parse(localStorage.getItem('OMNI_TODOS') || '[]'));
   const [notes, setNotes] = useState<Note[]>(() => JSON.parse(localStorage.getItem('OMNI_NOTES') || '[]'));
@@ -34,8 +35,15 @@ const App: React.FC = () => {
     localStorage.setItem('OMNI_FOLDERS', JSON.stringify(folders));
   }, [todos, notes, folders]);
 
-  const handleAddTodo = (task: string) => {
-    setTodos(prev => [{ id: Date.now().toString(), task, completed: false, createdAt: Date.now() }, ...prev]);
+  const handleAddTodo = (task: string, priority?: 'p1' | 'p2' | 'p3' | 'p4') => {
+    const newTodo: Todo = { 
+      id: Date.now().toString(), 
+      task, 
+      completed: false, 
+      createdAt: Date.now(),
+      priority: priority || 'p4'
+    };
+    setTodos(prev => [newTodo, ...prev]);
   };
 
   const handleNoteSaved = (note: Note) => {
@@ -55,12 +63,18 @@ const App: React.FC = () => {
 
   const handleSaveSettings = () => {
     localStorage.setItem('GOOGLE_CLIENT_ID', googleClientId);
+    localStorage.setItem('OUTLOOK_CLIENT_ID', outlookClientId);
     setShowSettings(false);
     window.location.reload();
   };
 
+  const copyOrigin = () => {
+    navigator.clipboard.writeText(window.location.origin);
+    alert("Origin copied! Paste this into Google Cloud Console.");
+  };
+
   return (
-    <div className="flex flex-col h-full bg-black text-white overflow-hidden">
+    <div className="flex flex-col h-full bg-midnight text-white overflow-hidden font-sans">
       <main className="flex-1 overflow-hidden relative">
         {activeTab === 'dashboard' && (
           <Dashboard 
@@ -84,7 +98,8 @@ const App: React.FC = () => {
 
         {activeTab === 'todo' && (
           <TodoView 
-            todos={todos} onAddTodo={handleAddTodo} 
+            todos={todos} 
+            onAddTodo={handleAddTodo} 
             onToggleTodo={(id) => setTodos(prev => prev.map(t => t.id === id ? {...t, completed: !t.completed} : t))} 
             onDeleteTodo={(id) => setTodos(prev => prev.filter(t => t.id !== id))} 
           />
@@ -98,10 +113,15 @@ const App: React.FC = () => {
           />
         )}
 
-        {activeTab === 'ai' && <AIAssistant notes={notes} emails={emails} events={events} todos={todos} onAddTodo={handleAddTodo} />}
+        {activeTab === 'ai' && (
+          <AIAssistant 
+            notes={notes} emails={emails} events={events} todos={todos} 
+            onAddTodo={(task) => handleAddTodo(task, 'p2')} 
+          />
+        )}
         
         {isTakingNote && (
-          <div className="absolute inset-0 z-[60] bg-black animate-in slide-in-from-bottom duration-700">
+          <div className="absolute inset-0 z-[60] bg-midnight animate-in slide-in-from-bottom duration-500">
             <NoteTaking 
               folders={folders} existingNote={editingNote} 
               onNoteSaved={handleNoteSaved} onCancel={() => { setIsTakingNote(false); setEditingNote(undefined); }} 
@@ -110,28 +130,53 @@ const App: React.FC = () => {
         )}
 
         {showSettings && (
-          <div className="absolute inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-8 animate-in fade-in duration-500">
-            <div className="bg-zinc-900 w-full max-w-md rounded-[4rem] p-12 border border-white/10 shadow-3xl">
-               <h3 className="text-4xl font-black mb-10 tracking-tighter italic">CORE.SETTINGS</h3>
+          <div className="absolute inset-0 z-[100] bg-midnight/98 backdrop-blur-3xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+            <div className="bg-nordic w-full max-w-md rounded-[2.5rem] p-8 border border-white/15 shadow-2xl overflow-y-auto max-h-[90vh] scrollbar-hide">
+               <div className="flex justify-between items-center mb-8">
+                 <h3 className="text-3xl font-black tracking-tighter italic text-white">SYNC SETTINGS</h3>
+                 <button onClick={() => setShowSettings(false)} className="text-gray-500 hover:text-white">
+                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                 </button>
+               </div>
                
-               <div className="space-y-10 mb-12">
+               <div className="space-y-8 mb-10 text-left">
+                 <div className="p-5 bg-white/5 rounded-3xl border border-white/10">
+                   <label className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-3 block">Fixing "Error 400" Redirect</label>
+                   <p className="text-[11px] text-gray-400 font-medium leading-relaxed mb-4">
+                     You must add this URL to your Google Cloud Console under "Authorized JavaScript origins":
+                   </p>
+                   <div className="flex items-center space-x-3 bg-black p-3 rounded-xl border border-white/5 mb-4">
+                     <code className="text-[10px] text-white flex-1 truncate">{window.location.origin}</code>
+                     <button onClick={copyOrigin} className="px-3 py-1 bg-white text-black text-[9px] font-black rounded-lg uppercase">Copy</button>
+                   </div>
+                   <p className="text-[9px] text-gray-500 italic">Settings take ~2-5 mins to propagate at Google.</p>
+                 </div>
+
                  <div>
-                   <label className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4 block">Google Client ID</label>
+                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 block">Google Client ID</label>
                    <input 
                     value={googleClientId}
                     onChange={(e) => setGoogleClientId(e.target.value)}
-                    placeholder="76281398...apps.googleusercontent.com"
-                    className="w-full bg-black rounded-3xl p-6 border-white/10 text-[10px] font-mono text-white placeholder:text-zinc-800"
+                    placeholder="Enter Client ID"
+                    className="w-full bg-black rounded-2xl p-5 border-white/10 text-[13px] font-bold text-white focus:border-white transition-all shadow-inner"
+                   />
+                 </div>
+
+                 <div>
+                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 block">Outlook Client ID</label>
+                   <input 
+                    value={outlookClientId}
+                    onChange={(e) => setOutlookClientId(e.target.value)}
+                    placeholder="Azure App ID"
+                    className="w-full bg-black rounded-2xl p-5 border-white/10 text-[13px] font-bold text-white focus:border-white transition-all shadow-inner"
                    />
                  </div>
                </div>
 
                <button 
                 onClick={handleSaveSettings}
-                className="w-full bg-white text-black py-7 rounded-full font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"
-               >Deploy Config</button>
-               
-               <button onClick={() => setShowSettings(false)} className="w-full py-8 text-zinc-600 font-bold text-[9px] uppercase tracking-widest">Abort</button>
+                className="w-full bg-white text-black py-6 rounded-full font-black text-[14px] uppercase tracking-widest active:scale-95 transition-all shadow-2xl mb-4"
+               >Update Configuration</button>
             </div>
           </div>
         )}

@@ -21,20 +21,19 @@ const App: React.FC = () => {
   ]);
 
   const [notes, setNotes] = useState<Note[]>([]);
-  const [emails, setEmails] = useState<Email[]>([
-    { id: '1', from: 'Sarah HR', subject: 'Quarterly Review Schedule', snippet: 'Hi team, please find the schedule for...', receivedDateTime: new Date().toISOString(), isImportant: true },
-    { id: '2', from: 'Git Notification', subject: 'Successful Deployment', snippet: 'Your latest build for omni-work is live...', receivedDateTime: new Date().toISOString(), isImportant: false },
-    { id: '3', from: 'CEO Update', subject: 'Town Hall Meeting', snippet: 'Important updates regarding the new product launch...', receivedDateTime: new Date(Date.now() - 3600000).toISOString(), isImportant: true },
-  ]);
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    { id: '1', subject: 'Project Sync', start: new Date(Date.now() + 3600000).toISOString(), end: new Date(Date.now() + 7200000).toISOString(), location: 'Microsoft Teams' },
-    { id: '2', subject: 'Product Design Deep Dive', start: new Date(Date.now() + 10800000).toISOString(), end: new Date(Date.now() + 14400000).toISOString(), location: 'Conference Room B' },
-  ]);
+  // Start with empty arrays to wait for real login
+  const [emails, setEmails] = useState<Email[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   useEffect(() => {
     if (theme === 'dark') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   }, [theme]);
+
+  const handleOutlookUpdate = (newEmails: Email[], newEvents: CalendarEvent[]) => {
+    setEmails(newEmails);
+    setEvents(newEvents);
+  };
 
   const handleNoteSaved = (note: Note) => {
     setNotes(prev => {
@@ -90,7 +89,13 @@ const App: React.FC = () => {
             onNewNote={() => { setEditingNote(undefined); setIsTakingNote(true); }}
           />
         )}
-        {activeTab === 'outlook' && <OutlookIntegration emails={emails} events={events} />}
+        {activeTab === 'outlook' && (
+          <OutlookIntegration 
+            emails={emails} 
+            events={events} 
+            onDataUpdate={handleOutlookUpdate} 
+          />
+        )}
         {activeTab === 'ai' && <AIAssistant notes={notes} emails={emails} events={events} />}
         
         {isTakingNote && (

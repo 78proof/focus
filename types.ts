@@ -27,17 +27,17 @@ export interface Email {
   from: string;
   subject: string;
   snippet: string;
-  receivedDateTime: string;
+  date: string;
   isImportant: boolean;
 }
 
 export interface CalendarEvent {
   id: string;
-  subject: string;
+  summary: string;
   start: string;
   end: string;
   location?: string;
 }
 
-export type AppTab = 'dashboard' | 'notes' | 'todo' | 'outlook' | 'ai';
-export type Theme = 'light' | 'dark';
+export type AppTab = 'dashboard' | 'notes' | 'todo' | 'google' | 'ai';
+export type Theme = 'light' | 'dark' | 'monochrome';

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Note, Folder } from '../types';
 import { GeminiService } from '../services/geminiService';
@@ -34,13 +33,6 @@ const NoteTaking: React.FC<NoteTakingProps> = ({ folders, existingNote, onNoteSa
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isRecording, isPaused]);
 
-  // Handle mobile keyboard scroll
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-    }
-  }, [content]);
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -67,7 +59,17 @@ const NoteTaking: React.FC<NoteTakingProps> = ({ folders, existingNote, onNoteSa
       setIsRecording(true);
       setIsPaused(false);
     } catch (err) {
-      alert("Microphone access is required for Granola-style notes.");
+      alert("Microphone access is required for Granola-style recording.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
+      setIsRecording(false);
+      setIsPaused(false);
+      setRecordingTime(0);
     }
   };
 
@@ -79,16 +81,6 @@ const NoteTaking: React.FC<NoteTakingProps> = ({ folders, existingNote, onNoteSa
     } else {
       mediaRecorderRef.current.pause();
       setIsPaused(true);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
-      setIsRecording(false);
-      setIsPaused(false);
-      setRecordingTime(0);
     }
   };
 
@@ -113,7 +105,7 @@ const NoteTaking: React.FC<NoteTakingProps> = ({ folders, existingNote, onNoteSa
       }
     } catch (error) {
       console.error(error);
-      alert("Transcription failed. Please check your internet.");
+      alert("Transcription failed. Check your Gemini API key.");
     } finally {
       setIsTranscribing(false);
     }
@@ -126,12 +118,12 @@ const NoteTaking: React.FC<NoteTakingProps> = ({ folders, existingNote, onNoteSa
       const result = await GeminiService.finalizeNote(content, folders);
       onNoteSaved({
         id: existingNote?.id || Date.now().toString(),
-        title: content.split('\n')[0].substring(0, 40) || 'Meeting Note',
+        title: content.split('\n')[0].substring(0, 40) || 'New Note',
         content: content,
         summary: result.summary,
         timestamp: Date.now(),
         type: 'voice',
-        folderId: result.folderId
+        folderId: result.folderId || folders[0].id
       });
     } catch (error) {
       onNoteSaved({
@@ -148,74 +140,73 @@ const NoteTaking: React.FC<NoteTakingProps> = ({ folders, existingNote, onNoteSa
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 p-6 pt-safe animate-in slide-in-from-bottom duration-300">
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 p-6 pt-safe">
       <div className="flex justify-between items-center mb-6 pt-4">
-        <button onClick={onCancel} className="text-gray-400 dark:text-zinc-500 font-black uppercase text-xs tracking-widest active:text-gray-900">Cancel</button>
-        <div className="flex items-center space-x-3">
-           {isTranscribing && (
-             <div className="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-100 dark:border-blue-800">
-               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-               <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Processing...</span>
-             </div>
-           )}
-           <button 
-            onClick={handleFinalize}
-            disabled={!content.trim() || isRecording || isTranscribing || isFinalizing}
-            className="bg-blue-600 text-white px-6 py-2 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-500/30 disabled:opacity-50 transition-all active:scale-95"
-          >
-            {isFinalizing ? 'Saving' : 'Save Note'}
-          </button>
-        </div>
+        <button onClick={onCancel} className="text-gray-400 font-black uppercase text-xs tracking-widest">Cancel</button>
+        <button 
+          onClick={handleFinalize}
+          disabled={!content.trim() || isRecording || isTranscribing || isFinalizing}
+          className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-2 rounded-2xl font-black text-xs uppercase tracking-widest disabled:opacity-30"
+        >
+          {isFinalizing ? 'Saving' : 'Finalize'}
+        </button>
       </div>
 
-      <div className="flex-1 flex flex-col relative overflow-hidden mb-4">
+      <div className="flex-1 overflow-hidden mb-6">
         <textarea
           ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Start your workspace. Write notes or record audio to transcribe automatically..."
-          className="flex-1 w-full text-xl font-bold text-gray-800 dark:text-zinc-100 bg-transparent border-none focus:ring-0 resize-none placeholder-gray-200 dark:placeholder-zinc-800 leading-relaxed"
+          placeholder="Tap the mic to record or start typing..."
+          className="w-full h-full text-2xl font-black text-gray-900 dark:text-white bg-transparent border-none focus:ring-0 resize-none placeholder-gray-200 dark:placeholder-zinc-800 leading-tight"
         />
       </div>
 
-      <div className="bg-gray-50 dark:bg-zinc-900 rounded-[2rem] p-5 shadow-inner border border-gray-100 dark:border-zinc-800 pb-safe">
+      {isTranscribing && (
+        <div className="flex items-center space-x-3 mb-6 animate-pulse">
+          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Transcribing audio...</span>
+        </div>
+      )}
+
+      <div className="bg-gray-100 dark:bg-zinc-900 rounded-[3rem] p-6 pb-12">
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-1">
-              {isRecording ? (isPaused ? 'Paused' : 'Recording') : 'Idle'}
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">
+              {isRecording ? (isPaused ? 'Paused' : 'Recording') : 'Ready'}
             </span>
-            <span className={`text-xl font-black ${isRecording && !isPaused ? 'text-red-500 animate-pulse-red' : 'text-gray-900 dark:text-white'}`}>
+            <span className={`text-2xl font-black ${isRecording && !isPaused ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
               {formatTime(recordingTime)}
             </span>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             {isRecording ? (
               <>
                 <button 
                   onClick={togglePause}
-                  className="w-12 h-12 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition-transform"
+                  className="w-14 h-14 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"
                 >
                   {isPaused ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
                   )}
                 </button>
                 <button 
                   onClick={stopRecording}
-                  className="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-red-500/40 active:scale-90 transition-transform"
+                  className="w-20 h-20 bg-red-500 text-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 animate-pulse-red"
                 >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"/></svg>
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"/></svg>
                 </button>
               </>
             ) : (
               <button 
                 onClick={startRecording}
                 disabled={isTranscribing || isFinalizing}
-                className="w-16 h-16 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform disabled:opacity-30"
+                className="w-20 h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-2xl active:scale-90 disabled:opacity-30"
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
               </button>

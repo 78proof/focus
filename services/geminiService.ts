@@ -3,19 +3,26 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 
 export class GeminiService {
   private static getClient() {
-    return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    const key = process.env.API_KEY;
+    if (!key) throw new Error("GEMINI_API_KEY_MISSING");
+    return new GoogleGenAI({ apiKey: key });
   }
 
   static async transcribeAudio(base64Audio: string, mimeType: string): Promise<string> {
-    const ai = this.getClient();
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: [
-        { inlineData: { mimeType, data: base64Audio } },
-        { text: "Transcribe this audio exactly. Output ONLY text." }
-      ]
-    });
-    return response.text?.trim() || "";
+    try {
+      const ai = this.getClient();
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [
+          { inlineData: { mimeType, data: base64Audio } },
+          { text: "Transcribe this audio exactly. Output ONLY text." }
+        ]
+      });
+      return response.text?.trim() || "";
+    } catch (e) {
+      console.error("Transcription error:", e);
+      throw e;
+    }
   }
 
   static async assistantChat(query: string, context: string) {
@@ -45,8 +52,8 @@ export class GeminiService {
   }
 
   static async speakText(text: string): Promise<Uint8Array | null> {
-    const ai = this.getClient();
     try {
+      const ai = this.getClient();
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-preview-tts",
         contents: [{ parts: [{ text: `Speak this clearly: ${text}` }] }],

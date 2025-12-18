@@ -174,7 +174,8 @@ const OutlookIntegration: React.FC<OutlookProps> = ({ emails, events, onDataUpda
                   <p className="text-[8px] font-black text-gray-400 uppercase">HRS</p>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-black text-gray-900 dark:text-zinc-100 text-md">{event.subject}</h3>
+                  {/* Fix: Use summary instead of subject for CalendarEvent */}
+                  <h3 className="font-black text-gray-900 dark:text-zinc-100 text-md">{event.summary}</h3>
                   <p className="text-[10px] text-gray-500 dark:text-zinc-400 mt-1 font-bold uppercase tracking-widest">
                     {event.location}
                   </p>

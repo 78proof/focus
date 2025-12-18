@@ -61,7 +61,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ notes, emails, events, todos,
     const context = `
       CURRENT TASKS: ${todos.map(t => (t.completed ? '[Done] ' : '') + t.task).join(', ')}
       UPCOMING EMAILS: ${emails.map(e => `${e.from}: ${e.subject}`).join(' | ')}
-      CALENDAR TODAY: ${events.map(ev => `${ev.subject} at ${new Date(ev.start).getHours()}:00`).join(' | ')}
+      // Fix: Use ev.summary instead of ev.subject for CalendarEvent
+      CALENDAR TODAY: ${events.map(ev => `${ev.summary} at ${new Date(ev.start).getHours()}:00`).join(' | ')}
     `;
 
     try {

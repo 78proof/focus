@@ -40,4 +40,4 @@ export interface CalendarEvent {
 }
 
 export type AppTab = 'dashboard' | 'notes' | 'todo' | 'google' | 'ai';
-export type Theme = 'light' | 'dark' | 'monochrome';
+export type Theme = 'light' | 'dark' | 'monochrome' | 'hyperbridge';

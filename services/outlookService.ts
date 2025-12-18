@@ -77,7 +77,8 @@ export class OutlookService {
         from: m.from?.emailAddress?.name || m.from?.emailAddress?.address || "Unknown",
         subject: m.subject || "No Subject",
         snippet: m.bodyPreview || "",
-        receivedDateTime: m.receivedDateTime,
+        // Fix: Rename receivedDateTime to date to match Email interface
+        date: m.receivedDateTime,
         isImportant: m.importance === "high"
       }));
     } catch (e) {
@@ -99,7 +100,8 @@ export class OutlookService {
       const data = await response.json();
       return (data.value || []).map((e: any) => ({
         id: e.id,
-        subject: e.subject,
+        // Fix: Map MS Graph 'subject' to 'summary' to match CalendarEvent interface
+        summary: e.subject,
         start: e.start.dateTime,
         end: e.end.dateTime,
         location: e.location?.displayName || 'Microsoft Teams'

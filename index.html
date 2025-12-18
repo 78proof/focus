@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>OmniWork | Focus</title>
+    <title>OmniWork | Evolution</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -15,7 +15,12 @@
         theme: {
           extend: {
             colors: {
-              border: "hsl(var(--border))",
+              polkadot: "#E6007A"
+            },
+            borderRadius: {
+              '4xl': '2rem',
+              '5xl': '2.5rem',
+              '6xl': '3rem',
             }
           }
         }
@@ -27,83 +32,77 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        background: #fafafa;
       }
       
-      body { background: #fafafa; color: #09090b; transition: background 0.3s, color 0.3s; }
       .dark body { background: #09090b; color: #fafafa; }
       
-      /* Monochrome / Polkadot Theme */
-      .monochrome body { 
-        background-color: #000000 !important; 
+      /* Rounded Hyperbridge Theme */
+      .hyperbridge body {
+        background-color: #000000 !important;
         color: #ffffff !important;
-        background-image: radial-gradient(#333 1px, transparent 1px);
-        background-size: 24px 24px;
-      }
-      .monochrome #root { background: transparent !important; }
-      .monochrome .bg-white, 
-      .monochrome .bg-gray-50, 
-      .monochrome .bg-zinc-50, 
-      .monochrome .bg-gray-100,
-      .monochrome .dark\:bg-zinc-900,
-      .monochrome .dark\:bg-zinc-950 { 
-        background-color: #000000 !important; 
-        border: 1px solid #333 !important;
-      }
-      .monochrome .border, 
-      .monochrome .border-gray-100, 
-      .monochrome .border-zinc-800 { 
-        border-color: #333 !important; 
-      }
-      .monochrome .text-gray-900, 
-      .monochrome .text-gray-800, 
-      .monochrome .dark\:text-white { 
-        color: #ffffff !important; 
-      }
-      .monochrome .text-gray-400, 
-      .monochrome .text-zinc-500 { 
-        color: #666666 !important; 
-      }
-      
-      /* Polkadot sharp edges */
-      .monochrome .rounded-[2rem], 
-      .monochrome .rounded-[2.2rem],
-      .monochrome .rounded-[2.5rem], 
-      .monochrome .rounded-3xl, 
-      .monochrome .rounded-2xl,
-      .monochrome .rounded-xl,
-      .monochrome .rounded-full { 
-        border-radius: 0 !important; 
-        border: 1px solid #ffffff !important;
-      }
-      .monochrome .shadow-sm, 
-      .monochrome .shadow-xl, 
-      .monochrome .shadow-2xl { 
-        box-shadow: none !important; 
-      }
-      .monochrome button { 
-        border: 1px solid #ffffff !important; 
-        text-transform: uppercase !important;
-        letter-spacing: 0.1em !important;
-      }
-      .monochrome input, .monochrome textarea { 
-        border: 1px solid #333 !important; 
-        border-radius: 0 !important; 
-        background: #000 !important;
+        background-image: 
+          radial-gradient(circle at 1px 1px, #1a1a1a 1px, transparent 0);
+        background-size: 32px 32px;
       }
 
+      .hyperbridge .bg-white, 
+      .hyperbridge .bg-gray-50, 
+      .hyperbridge .bg-gray-100,
+      .hyperbridge .bg-zinc-900,
+      .hyperbridge .dark\:bg-zinc-950,
+      .hyperbridge .bg-zinc-100 { 
+        background-color: rgba(20, 20, 20, 0.7) !important; 
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(230, 0, 122, 0.2) !important;
+      }
+
+      .hyperbridge .text-gray-900, 
+      .hyperbridge .text-gray-800, 
+      .hyperbridge .dark\:text-white,
+      .hyperbridge .text-zinc-100 { 
+        color: #ffffff !important; 
+      }
+
+      .hyperbridge button {
+        border: 1px solid rgba(230, 0, 122, 0.4) !important;
+        background: rgba(230, 0, 122, 0.05) !important;
+        color: #E6007A !important;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .hyperbridge button:active {
+        background: #E6007A !important;
+        color: white !important;
+        transform: scale(0.95);
+      }
+
+      .hyperbridge input, .hyperbridge textarea {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+      }
+
+      .hyperbridge .text-polkadot { color: #E6007A !important; }
+      
+      /* Global Smoothness */
       * {
         -webkit-tap-highlight-color: transparent;
-        font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
       }
+      
       .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
       .pt-safe { padding-top: env(safe-area-inset-top); }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       
-      @keyframes pulse-red {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(0.98); }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
       }
-      .animate-pulse-red { animation: pulse-red 1.5s ease-in-out infinite; }
+      .animate-float { animation: float 3s ease-in-out infinite; }
     </style>
   <script type="importmap">
 {
@@ -119,7 +118,7 @@
 }
 </script>
 </head>
-  <body class="bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
+  <body class="bg-gray-50 dark:bg-zinc-950">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

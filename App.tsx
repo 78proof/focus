@@ -37,9 +37,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('dark', 'monochrome');
+    root.classList.remove('dark', 'monochrome', 'hyperbridge');
     if (theme === 'dark') root.classList.add('dark');
     if (theme === 'monochrome') root.classList.add('monochrome');
+    if (theme === 'hyperbridge') root.classList.add('hyperbridge');
     localStorage.setItem('OMNI_THEME', theme);
   }, [theme]);
 
@@ -62,8 +63,14 @@ const App: React.FC = () => {
     setIsTakingNote(true);
   };
 
+  const handleSaveSettings = () => {
+    localStorage.setItem('GOOGLE_CLIENT_ID', googleClientId);
+    setShowSettings(false);
+    window.location.reload();
+  };
+
   return (
-    <div className={`flex flex-col h-full bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 transition-colors duration-300 ${theme === 'monochrome' ? 'monochrome' : ''}`}>
+    <div className={`flex flex-col h-full bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 transition-colors duration-500 ${theme}`}>
       <main className="flex-1 overflow-hidden relative">
         {activeTab === 'dashboard' && (
           <Dashboard 
@@ -96,13 +103,18 @@ const App: React.FC = () => {
         )}
 
         {activeTab === 'google' && (
-          <GoogleIntegration emails={emails} events={events} onDataUpdate={(em, ev) => { setEmails(em); setEvents(ev); }} onRequestSettings={() => setShowSettings(true)} />
+          <GoogleIntegration 
+            emails={emails} 
+            events={events} 
+            onDataUpdate={(em, ev) => { setEmails(em); setEvents(ev); }} 
+            onRequestSettings={() => setShowSettings(true)} 
+          />
         )}
 
         {activeTab === 'ai' && <AIAssistant notes={notes} emails={emails} events={events} todos={todos} onAddTodo={handleAddTodo} />}
         
         {isTakingNote && (
-          <div className="absolute inset-0 z-50 bg-white dark:bg-zinc-950 animate-in slide-in-from-bottom duration-300">
+          <div className="absolute inset-0 z-[60] bg-white dark:bg-zinc-950 animate-in slide-in-from-bottom duration-500">
             <NoteTaking 
               folders={folders} 
               existingNote={editingNote} 
@@ -113,30 +125,30 @@ const App: React.FC = () => {
         )}
 
         {showSettings && (
-          <div className="absolute inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in">
-            <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-[3rem] p-8 shadow-2xl border border-gray-100 dark:border-zinc-800">
-               <h3 className="text-3xl font-black mb-2 tracking-tighter leading-none">Settings</h3>
-               <p className="text-[10px] text-gray-400 mb-8 font-black uppercase tracking-widest">Workspace</p>
+          <div className="absolute inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-[3rem] p-10 shadow-6xl border border-gray-100 dark:border-zinc-800">
+               <h3 className="text-4xl font-black mb-2 tracking-tighter leading-none italic">Settings</h3>
+               <p className="text-[9px] text-zinc-400 mb-10 font-black uppercase tracking-[0.3em]">Core Config</p>
                
-               <div className="space-y-6 mb-8 text-left">
+               <div className="space-y-8 mb-10 text-left">
                  <div>
-                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Google Client ID</label>
+                   <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-1 mb-2 block">Google Client ID</label>
                    <input 
                     value={googleClientId}
                     onChange={(e) => setGoogleClientId(e.target.value)}
                     placeholder="Enter Client ID..."
-                    className="w-full bg-gray-100 dark:bg-zinc-800 rounded-2xl p-5 border-none focus:ring-2 focus:ring-zinc-900 text-xs font-mono dark:text-white"
+                    className="w-full bg-gray-100 dark:bg-zinc-800 rounded-3xl p-6 border-none focus:ring-2 focus:ring-polkadot text-xs font-mono dark:text-white"
                    />
                  </div>
 
                  <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Interface Theme</label>
-                    <div className="grid grid-cols-3 gap-2">
-                       {['light', 'dark', 'monochrome'].map(t => (
+                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-1 mb-2 block">System Theme</label>
+                    <div className="grid grid-cols-2 gap-3">
+                       {['light', 'dark', 'monochrome', 'hyperbridge'].map(t => (
                          <button 
                            key={t} 
                            onClick={() => setTheme(t as Theme)}
-                           className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${theme === t ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' : 'bg-gray-100 dark:bg-zinc-800 text-gray-400'}`}
+                           className={`py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${theme === t ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 ring-2 ring-polkadot ring-offset-2 dark:ring-offset-zinc-900' : 'bg-gray-100 dark:bg-zinc-800 text-zinc-400'}`}
                          >
                            {t}
                          </button>
@@ -146,15 +158,11 @@ const App: React.FC = () => {
                </div>
 
                <button 
-                onClick={() => { 
-                  localStorage.setItem('GOOGLE_CLIENT_ID', googleClientId); 
-                  setShowSettings(false); 
-                  window.location.reload(); 
-                }}
-                className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 py-5 rounded-3xl font-black text-sm uppercase tracking-widest active:scale-95 shadow-xl"
-               >Save Changes</button>
+                onClick={handleSaveSettings}
+                className="w-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 py-6 rounded-full font-black text-sm uppercase tracking-widest active:scale-95 shadow-2xl transition-transform"
+               >Deploy Configuration</button>
                
-               <button onClick={() => setShowSettings(false)} className="w-full py-4 text-gray-400 font-bold text-xs uppercase tracking-widest">Close</button>
+               <button onClick={() => setShowSettings(false)} className="w-full py-6 text-zinc-400 font-bold text-[10px] uppercase tracking-[0.2em]">Close Hub</button>
             </div>
           </div>
         )}

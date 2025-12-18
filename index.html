@@ -5,6 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>OmniWork | Focus</title>
+    
+    <!-- iPhone Native App Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -24,6 +30,7 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        background: #000;
       }
       * {
         -webkit-tap-highlight-color: transparent;
@@ -31,6 +38,9 @@
       }
       .pb-safe {
         padding-bottom: env(safe-area-inset-bottom);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top);
       }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -57,7 +67,6 @@
 </head>
   <body class="bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
     <div id="root"></div>
-    <!-- Vite handles the module transformation; no importmap needed -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

@@ -68,9 +68,16 @@ const App: React.FC = () => {
     window.location.reload();
   };
 
-  const copyOrigin = () => {
-    navigator.clipboard.writeText(window.location.origin);
-    alert("Origin copied! Paste this into Google Cloud Console.");
+  const factoryReset = () => {
+    if (confirm("This will clear ALL settings and local data. Fixes 'Blank Screen' and login loops. Continue?")) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
+  const copyUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
+    alert("Origin URL Copied!");
   };
 
   return (
@@ -133,50 +140,70 @@ const App: React.FC = () => {
           <div className="absolute inset-0 z-[100] bg-midnight/98 backdrop-blur-3xl flex items-center justify-center p-6 animate-in fade-in duration-300">
             <div className="bg-nordic w-full max-w-md rounded-[2.5rem] p-8 border border-white/15 shadow-2xl overflow-y-auto max-h-[90vh] scrollbar-hide">
                <div className="flex justify-between items-center mb-8">
-                 <h3 className="text-3xl font-black tracking-tighter italic text-white">SYNC SETTINGS</h3>
+                 <h3 className="text-3xl font-black tracking-tighter italic text-white uppercase">Sync Hub</h3>
                  <button onClick={() => setShowSettings(false)} className="text-gray-500 hover:text-white">
                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                  </button>
                </div>
                
                <div className="space-y-8 mb-10 text-left">
-                 <div className="p-5 bg-white/5 rounded-3xl border border-white/10">
-                   <label className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-3 block">Fixing "Error 400" Redirect</label>
-                   <p className="text-[11px] text-gray-400 font-medium leading-relaxed mb-4">
-                     You must add this URL to your Google Cloud Console under "Authorized JavaScript origins":
+                 <div className="p-6 bg-white/5 rounded-3xl border border-emerald-500/20 shadow-inner">
+                   <label className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-4 block">Important: Google Access</label>
+                   <p className="text-[11px] text-gray-400 font-bold mb-4 leading-relaxed">
+                     You MUST whitelist this exact URL in Google Cloud Console or login will fail:
                    </p>
-                   <div className="flex items-center space-x-3 bg-black p-3 rounded-xl border border-white/5 mb-4">
-                     <code className="text-[10px] text-white flex-1 truncate">{window.location.origin}</code>
-                     <button onClick={copyOrigin} className="px-3 py-1 bg-white text-black text-[9px] font-black rounded-lg uppercase">Copy</button>
+                   
+                   <div className="flex items-center bg-black p-3 rounded-xl border border-white/10 mb-4 overflow-hidden">
+                     <code className="text-[9px] text-white flex-1 truncate mr-4">{window.location.origin}</code>
+                     <button onClick={() => copyUrl(window.location.origin)} className="px-3 py-1 bg-white text-black text-[9px] font-black rounded uppercase flex-shrink-0">Copy</button>
                    </div>
-                   <p className="text-[9px] text-gray-500 italic">Settings take ~2-5 mins to propagate at Google.</p>
+                   
+                   <div className="space-y-2">
+                     <p className="text-[9px] text-gray-500 flex items-center">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                        Authorized JavaScript origins
+                     </p>
+                     <p className="text-[9px] text-gray-500 flex items-center">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                        Authorized redirect URIs
+                     </p>
+                   </div>
                  </div>
 
                  <div>
-                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 block">Google Client ID</label>
+                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4 block">Google Client ID</label>
                    <input 
                     value={googleClientId}
                     onChange={(e) => setGoogleClientId(e.target.value)}
                     placeholder="Enter Client ID"
-                    className="w-full bg-black rounded-2xl p-5 border-white/10 text-[13px] font-bold text-white focus:border-white transition-all shadow-inner"
+                    className="w-full bg-black rounded-2xl p-5 border-white/10 text-[12px] font-mono text-white focus:border-white transition-all"
                    />
                  </div>
 
                  <div>
-                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 block">Outlook Client ID</label>
+                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-4 block">Outlook Client ID</label>
                    <input 
                     value={outlookClientId}
                     onChange={(e) => setOutlookClientId(e.target.value)}
-                    placeholder="Azure App ID"
-                    className="w-full bg-black rounded-2xl p-5 border-white/10 text-[13px] font-bold text-white focus:border-white transition-all shadow-inner"
+                    placeholder="Application ID"
+                    className="w-full bg-black rounded-2xl p-5 border-white/10 text-[12px] font-mono text-white focus:border-white transition-all"
                    />
                  </div>
+
+                 <button 
+                  onClick={factoryReset}
+                  className="w-full py-4 text-[9px] font-black text-red-500 uppercase tracking-[0.3em] border border-red-500/20 rounded-2xl hover:bg-red-500/5 transition-all"
+                 >
+                   Factory Reset (Fix Login Errors)
+                 </button>
                </div>
 
                <button 
                 onClick={handleSaveSettings}
                 className="w-full bg-white text-black py-6 rounded-full font-black text-[14px] uppercase tracking-widest active:scale-95 transition-all shadow-2xl mb-4"
-               >Update Configuration</button>
+               >Save and Restart</button>
+               
+               <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-widest">Settings propagate in ~2 minutes</p>
             </div>
           </div>
         )}

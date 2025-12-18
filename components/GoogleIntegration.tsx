@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Email, CalendarEvent } from '../types';
 import { GoogleService } from '../services/googleService';
@@ -14,9 +13,9 @@ const GoogleIntegration: React.FC<GoogleProps> = ({ emails, events, onDataUpdate
   const [view, setView] = useState<'mail' | 'calendar'>('mail');
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load Google Identity Services script
     const script = document.createElement('script');
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
@@ -26,6 +25,7 @@ const GoogleIntegration: React.FC<GoogleProps> = ({ emails, events, onDataUpdate
 
   const handleConnect = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       await GoogleService.login();
       const [mail, cal] = await Promise.all([
@@ -38,7 +38,8 @@ const GoogleIntegration: React.FC<GoogleProps> = ({ emails, events, onDataUpdate
       if (err.message === "GOOGLE_CLIENT_ID_MISSING") {
         onRequestSettings();
       } else {
-        alert("Google Sign-in failed. Ensure your Client ID is correct.");
+        console.error("Google Auth Error", err);
+        setError("Access Denied. Check Test User permissions.");
       }
     } finally {
       setIsLoading(false);
@@ -47,42 +48,52 @@ const GoogleIntegration: React.FC<GoogleProps> = ({ emails, events, onDataUpdate
 
   if (!isConnected) {
     return (
-      <div className="flex flex-col h-full bg-white dark:bg-zinc-950 items-center justify-center p-10 text-center">
-        <div className="w-20 h-20 bg-zinc-900 dark:bg-white rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl">
-           <svg className="w-10 h-10 text-white dark:text-zinc-900" fill="currentColor" viewBox="0 0 24 24">
+      <div className="flex flex-col h-full bg-black items-center justify-center p-12 text-center animate-reveal">
+        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-12 shadow-[0_0_80px_rgba(255,255,255,0.1)]">
+           <svg className="w-10 h-10 text-black" fill="currentColor" viewBox="0 0 24 24">
              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.92 3.2-1.84 4.12-1.16 1.16-2.92 2.4-5.92 2.4-4.8 0-8.68-3.88-8.68-8.68s3.88-8.68 8.68-8.68c2.6 0 4.56 1.04 5.96 2.36l2.32-2.32C18.6 1.12 15.84 0 12.48 0 5.6 0 0 5.6 0 12.48s5.6 12.48 12.48 12.48c3.72 0 6.52-1.24 8.72-3.52 2.28-2.28 3-5.48 3-8.08 0-.8-.08-1.52-.2-2.24H12.48z"/>
            </svg>
         </div>
-        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter">Personal Workspace</h2>
-        <p className="text-gray-400 dark:text-zinc-500 mb-10 leading-relaxed max-w-xs font-bold text-sm">
-          Connect your Gmail and Google Calendar. No corporate Azure setup required.
+        <h2 className="text-5xl font-black text-white italic tracking-tighter mb-4">SYNC.</h2>
+        <p className="text-zinc-600 mb-16 leading-relaxed max-w-[240px] font-bold text-[10px] uppercase tracking-[0.4em]">
+          Establish secure handshake with workspace.
         </p>
+        
+        {error && <p className="text-white text-[10px] font-black uppercase mb-8 opacity-50">{error}</p>}
+        
         <button
           onClick={handleConnect}
           disabled={isLoading}
-          className="w-full max-w-xs bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 py-5 rounded-3xl font-black text-lg shadow-xl active:scale-95 transition-all"
+          className="w-full max-w-xs bg-white text-black py-7 rounded-full font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all"
         >
-          {isLoading ? "Syncing..." : "Sign in with Google"}
+          {isLoading ? "Negotiating..." : "Connect Google"}
+        </button>
+        
+        <button 
+          onClick={onRequestSettings}
+          className="mt-12 text-[8px] text-zinc-800 font-black uppercase tracking-widest hover:text-zinc-400 transition-colors"
+        >
+          Adjust Configuration
         </button>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 overflow-hidden">
-      <div className="p-6 pt-safe border-b border-gray-100 dark:border-zinc-800">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-black tracking-tighter">Live Sync</h2>
-          <div className="flex space-x-2">
+    <div className="flex flex-col h-full bg-black overflow-hidden animate-reveal">
+      <div className="p-10 pt-safe border-b border-white/5 bg-zinc-950/50 backdrop-blur-xl">
+        <div className="flex justify-between items-end mb-10">
+          <h2 className="text-4xl font-black tracking-tighter italic">HUB.</h2>
+          <div className="flex glass-pill p-1.5 rounded-full">
             <button 
               onClick={() => setView('mail')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${view === 'mail' ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' : 'text-gray-400'}`}
+              className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'mail' ? 'bg-white text-black shadow-xl' : 'text-zinc-600'}`}
             >
-              Gmail ({emails.length})
+              Stream
             </button>
             <button 
               onClick={() => setView('calendar')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${view === 'calendar' ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' : 'text-gray-400'}`}
+              className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view === 'calendar' ? 'bg-white text-black shadow-xl' : 'text-zinc-600'}`}
             >
               Agenda
             </button>
@@ -90,35 +101,38 @@ const GoogleIntegration: React.FC<GoogleProps> = ({ emails, events, onDataUpdate
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 pb-32 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto p-8 pb-48 scrollbar-hide space-y-8">
         {view === 'mail' ? (
-          <div className="space-y-4">
-            {emails.map(email => (
-              <div key={email.id} className="p-6 rounded-[2.2rem] bg-gray-50 dark:bg-zinc-900/50 border border-gray-100 dark:border-zinc-800 transition-all active:scale-[0.98]">
-                <div className="flex justify-between mb-1">
-                  <span className="font-black text-blue-600 text-[9px] uppercase tracking-widest truncate max-w-[150px]">{email.from}</span>
-                  {email.isImportant && <span className="bg-amber-400 text-white text-[8px] px-1.5 py-0.5 rounded-full font-black uppercase">Starred</span>}
-                </div>
-                <h3 className="font-black text-gray-900 dark:text-zinc-100 text-sm mb-2">{email.subject}</h3>
-                <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">{email.snippet}</p>
+          emails.length > 0 ? emails.map(email => (
+            <div key={email.id} className="p-10 rounded-6xl glass-pill transition-all active:scale-[0.98]">
+              <div className="flex justify-between mb-6">
+                <span className="mono-label text-zinc-500 truncate max-w-[200px]">{email.from}</span>
               </div>
-            ))}
-          </div>
+              <h3 className="font-black text-white text-2xl mb-4 tracking-tighter leading-tight">{email.subject}</h3>
+              <p className="text-[12px] text-zinc-600 leading-relaxed font-bold tracking-tight line-clamp-2 uppercase italic">{email.snippet}</p>
+            </div>
+          )) : (
+            <div className="flex flex-col items-center justify-center h-64 opacity-20">
+               <p className="mono-label">Zero Mails</p>
+            </div>
+          )
         ) : (
-          <div className="space-y-4">
-            {events.map(event => (
-              <div key={event.id} className="flex p-5 rounded-[2.2rem] bg-gray-50 dark:bg-zinc-900/50 border border-gray-100 dark:border-zinc-800">
-                <div className="w-12 border-r border-gray-200 dark:border-zinc-800 mr-4 flex flex-col justify-center">
-                   <p className="text-lg font-black text-zinc-900 dark:text-white">{new Date(event.start).getHours()}</p>
-                   <p className="text-[7px] font-black text-gray-400 uppercase tracking-tighter">AM/PM</p>
-                </div>
-                <div>
-                  <h3 className="font-black text-gray-900 dark:text-zinc-100 text-sm">{event.summary}</h3>
-                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">{event.location || 'Google Meet'}</p>
-                </div>
+          events.length > 0 ? events.map(event => (
+            <div key={event.id} className="flex p-10 rounded-6xl glass-pill items-center space-x-10">
+              <div className="w-16 flex-shrink-0 flex flex-col justify-center border-r border-white/10 pr-6">
+                 <p className="text-4xl font-black text-white tracking-tighter leading-none">{new Date(event.start).getHours()}</p>
+                 <p className="mono-label text-zinc-700 mt-2">H</p>
               </div>
-            ))}
-          </div>
+              <div className="flex-1">
+                <h3 className="font-black text-white text-2xl tracking-tighter leading-tight">{event.summary}</h3>
+                <p className="mono-label text-zinc-500 mt-4">{event.location || 'Distributed'}</p>
+              </div>
+            </div>
+          )) : (
+            <div className="flex flex-col items-center justify-center h-64 opacity-20">
+               <p className="mono-label">Agenda Clear</p>
+            </div>
+          )
         )}
       </div>
     </div>

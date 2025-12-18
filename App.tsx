@@ -14,7 +14,6 @@ const App: React.FC = () => {
   const [editingNote, setEditingNote] = useState<Note | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
   const [googleClientId, setGoogleClientId] = useState(localStorage.getItem('GOOGLE_CLIENT_ID') || '');
-  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('OMNI_THEME') as Theme) || 'light');
   
   const [todos, setTodos] = useState<Todo[]>(() => JSON.parse(localStorage.getItem('OMNI_TODOS') || '[]'));
   const [notes, setNotes] = useState<Note[]>(() => JSON.parse(localStorage.getItem('OMNI_NOTES') || '[]'));
@@ -34,15 +33,6 @@ const App: React.FC = () => {
     localStorage.setItem('OMNI_NOTES', JSON.stringify(notes));
     localStorage.setItem('OMNI_FOLDERS', JSON.stringify(folders));
   }, [todos, notes, folders]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove('dark', 'monochrome', 'hyperbridge');
-    if (theme === 'dark') root.classList.add('dark');
-    if (theme === 'monochrome') root.classList.add('monochrome');
-    if (theme === 'hyperbridge') root.classList.add('hyperbridge');
-    localStorage.setItem('OMNI_THEME', theme);
-  }, [theme]);
 
   const handleAddTodo = (task: string) => {
     setTodos(prev => [{ id: Date.now().toString(), task, completed: false, createdAt: Date.now() }, ...prev]);
@@ -70,11 +60,11 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`flex flex-col h-full bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 transition-colors duration-500 ${theme}`}>
+    <div className="flex flex-col h-full bg-black text-white overflow-hidden">
       <main className="flex-1 overflow-hidden relative">
         {activeTab === 'dashboard' && (
           <Dashboard 
-            notes={notes} emails={emails} events={events} theme={theme} 
+            notes={notes} emails={emails} events={events} theme="monochrome" 
             onNewNote={startNewNote}
             onShowSettings={() => setShowSettings(true)}
             onToggleTheme={() => {}} 
@@ -83,8 +73,7 @@ const App: React.FC = () => {
         
         {activeTab === 'notes' && !isTakingNote && (
           <NotesView 
-            notes={notes} 
-            folders={folders} 
+            notes={notes} folders={folders} 
             onCreateFolder={(name) => setFolders(prev => [...prev, { id: Date.now().toString(), name, color: '#000' }])} 
             onMoveNote={(nid, fid) => setNotes(prev => prev.map(n => n.id === nid ? {...n, folderId: fid} : n))}
             onEditNote={(note) => { setEditingNote(note); setIsTakingNote(true); }} 
@@ -95,8 +84,7 @@ const App: React.FC = () => {
 
         {activeTab === 'todo' && (
           <TodoView 
-            todos={todos} 
-            onAddTodo={handleAddTodo} 
+            todos={todos} onAddTodo={handleAddTodo} 
             onToggleTodo={(id) => setTodos(prev => prev.map(t => t.id === id ? {...t, completed: !t.completed} : t))} 
             onDeleteTodo={(id) => setTodos(prev => prev.filter(t => t.id !== id))} 
           />
@@ -104,8 +92,7 @@ const App: React.FC = () => {
 
         {activeTab === 'google' && (
           <GoogleIntegration 
-            emails={emails} 
-            events={events} 
+            emails={emails} events={events} 
             onDataUpdate={(em, ev) => { setEmails(em); setEvents(ev); }} 
             onRequestSettings={() => setShowSettings(true)} 
           />
@@ -114,55 +101,37 @@ const App: React.FC = () => {
         {activeTab === 'ai' && <AIAssistant notes={notes} emails={emails} events={events} todos={todos} onAddTodo={handleAddTodo} />}
         
         {isTakingNote && (
-          <div className="absolute inset-0 z-[60] bg-white dark:bg-zinc-950 animate-in slide-in-from-bottom duration-500">
+          <div className="absolute inset-0 z-[60] bg-black animate-in slide-in-from-bottom duration-700">
             <NoteTaking 
-              folders={folders} 
-              existingNote={editingNote} 
-              onNoteSaved={handleNoteSaved} 
-              onCancel={() => { setIsTakingNote(false); setEditingNote(undefined); }} 
+              folders={folders} existingNote={editingNote} 
+              onNoteSaved={handleNoteSaved} onCancel={() => { setIsTakingNote(false); setEditingNote(undefined); }} 
             />
           </div>
         )}
 
         {showSettings && (
-          <div className="absolute inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-[3rem] p-10 shadow-6xl border border-gray-100 dark:border-zinc-800">
-               <h3 className="text-4xl font-black mb-2 tracking-tighter leading-none italic">Settings</h3>
-               <p className="text-[9px] text-zinc-400 mb-10 font-black uppercase tracking-[0.3em]">Core Config</p>
+          <div className="absolute inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-8 animate-in fade-in duration-500">
+            <div className="bg-zinc-900 w-full max-w-md rounded-[4rem] p-12 border border-white/10 shadow-3xl">
+               <h3 className="text-4xl font-black mb-10 tracking-tighter italic">CORE.SETTINGS</h3>
                
-               <div className="space-y-8 mb-10 text-left">
+               <div className="space-y-10 mb-12">
                  <div>
-                   <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-1 mb-2 block">Google Client ID</label>
+                   <label className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4 block">Google Client ID</label>
                    <input 
                     value={googleClientId}
                     onChange={(e) => setGoogleClientId(e.target.value)}
-                    placeholder="Enter Client ID..."
-                    className="w-full bg-gray-100 dark:bg-zinc-800 rounded-3xl p-6 border-none focus:ring-2 focus:ring-polkadot text-xs font-mono dark:text-white"
+                    placeholder="76281398...apps.googleusercontent.com"
+                    className="w-full bg-black rounded-3xl p-6 border-white/10 text-[10px] font-mono text-white placeholder:text-zinc-800"
                    />
-                 </div>
-
-                 <div>
-                    <label className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-1 mb-2 block">System Theme</label>
-                    <div className="grid grid-cols-2 gap-3">
-                       {['light', 'dark', 'monochrome', 'hyperbridge'].map(t => (
-                         <button 
-                           key={t} 
-                           onClick={() => setTheme(t as Theme)}
-                           className={`py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${theme === t ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 ring-2 ring-polkadot ring-offset-2 dark:ring-offset-zinc-900' : 'bg-gray-100 dark:bg-zinc-800 text-zinc-400'}`}
-                         >
-                           {t}
-                         </button>
-                       ))}
-                    </div>
                  </div>
                </div>
 
                <button 
                 onClick={handleSaveSettings}
-                className="w-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 py-6 rounded-full font-black text-sm uppercase tracking-widest active:scale-95 shadow-2xl transition-transform"
-               >Deploy Configuration</button>
+                className="w-full bg-white text-black py-7 rounded-full font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"
+               >Deploy Config</button>
                
-               <button onClick={() => setShowSettings(false)} className="w-full py-6 text-zinc-400 font-bold text-[10px] uppercase tracking-[0.2em]">Close Hub</button>
+               <button onClick={() => setShowSettings(false)} className="w-full py-8 text-zinc-600 font-bold text-[9px] uppercase tracking-widest">Abort</button>
             </div>
           </div>
         )}

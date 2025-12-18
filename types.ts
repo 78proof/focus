@@ -1,4 +1,10 @@
 
+export interface Folder {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -6,6 +12,7 @@ export interface Note {
   summary?: string;
   timestamp: number;
   type: 'text' | 'voice';
+  folderId: string;
 }
 
 export interface Email {
@@ -26,3 +33,4 @@ export interface CalendarEvent {
 }
 
 export type AppTab = 'dashboard' | 'notes' | 'outlook' | 'ai';
+export type Theme = 'light' | 'dark';
